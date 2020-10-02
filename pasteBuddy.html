@@ -1,0 +1,90 @@
+<html>
+    <head>
+        <title></title>
+        <style>
+        .btn-group button {
+          background-color: #4CAF50; /* Green background */
+          border: 1px solid green; /* Green border */
+          color: white; /* White text */
+          padding: 10px 24px; /* Some padding */
+          cursor: pointer; /* Pointer/hand icon */
+          width: 100%; /* Set a width if needed */
+          display: block; /* Make the buttons appear below each other */
+        }
+
+        .btn-group button:not(:last-child) {
+          border-bottom: none; /* Prevent double borders */
+        }
+
+        /* Add a background color on hover */
+        .btn-group button:hover {
+          background-color: #3e8e41;
+        }
+        </style>
+    </head>
+
+    <body>
+
+      <div class="btn-group">
+        <!--- buttons with onclick property
+        <button id='buddy0', onclick="paste(this)">Left click to paste1</button>
+        <button id='buddy1', onclick="paste(this)">Left click to paste2</button>
+        <button id='buddy2', onclick="copy(this)">Left click to paste3</button>
+        ---->
+
+        <button class='buddy', id='buddy0'>Left click to paste1</button>
+        <button class='buddy', id='buddy1'>Left click to paste2</button>
+        <button class='buddy', id='buddy2'>Left click to paste3</button>
+      </div>
+      <script>
+        async function paste(input) {//accepts html element and sets innerHTML to clipboard contents
+          const text = await navigator.clipboard.readText();
+          input.innerHTML = text;
+        }
+        async function copy(input) {//accepts html element and copies innerHTML to clipboard
+
+          var text = input.innerHTML;
+
+          try {
+            await navigator.clipboard.writeText(text);
+            console.log('Element contents copied to clipboard');
+          } catch (err) {
+            console.error('Failed to copy: ', err);
+          }
+        }
+        //this code block gets the clicked element
+        document.addEventListener('click', function(e) {//left click listener
+          if (e.button == 0) {
+            e = e || window.event;
+            var target = e.target || e.srcElement;//get clicked element as object and store
+            text = target.textContent || target.innerText;
+            if (target == '[object HTMLButtonElement]'){//if the element is a button do this
+              copy(target)
+              //alert('left clicked button with "'+target.innerHTML+'" as innerHTML');
+            }
+          }
+        }, false);
+        document.addEventListener('auxclick', function(e) {//middle click listener
+          if (e.button == 1) {
+            e = e || window.event;
+            var target = e.target || e.srcElement;//get clicked element as object and store
+            text = target.textContent || target.innerText;
+            if (target == '[object HTMLButtonElement]'){//if the element is a button do this
+              //alert('middle clicked button with "'+target.innerHTML+'" as innerHTML');
+            }
+          }
+        }, false);
+        document.addEventListener('auxclick', function(e) {//right click listener
+          if (e.button == 2) {
+            e = e || window.event;
+            var target = e.target || e.srcElement;//get clicked element as object and store
+            text = target.textContent || target.innerText;
+            if (target == '[object HTMLButtonElement]'){//if the element is a button do this
+              paste(target)
+              //alert('middle clicked button with "'+target.innerHTML+'" as innerHTML');
+            }
+          }
+        }, false);
+      </script>
+    </body>
+</html>
