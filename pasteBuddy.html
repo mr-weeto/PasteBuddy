@@ -1,0 +1,165 @@
+<html>
+    <head>
+        <title></title>
+        <style>
+        .btn-group button {
+          background-color: #4CAF50; /* Green background */
+          border: 1px solid green; /* Green border */
+          color: white; /* White text */
+          padding: 10px 24px; /* Some padding */
+          cursor: pointer; /* Pointer/hand icon */
+          width: 100%; /* Set a width if needed */
+          display: block; /* Make the buttons appear below each other */
+        }
+
+        .btn-group button:not(:last-child) {
+          border-bottom: none; /* Prevent double borders */
+        }
+
+        /* Add a background color on hover */
+        .btn-group button:hover {
+          background-color: #3e8e41;
+        }
+        .new-window{
+
+        }
+        .center {
+          text-align: center;
+        }
+        .hidden{
+          visibility: hidden;
+        }
+        </style>
+    </head>
+
+    <body>
+      <div class='new-window center', id='popOut'>
+        <a onclick="newWindow();">
+          Pop Out Window
+        </a>
+      </div>
+
+      <div class="btn-group", id='btn-group'>
+        <button class='buddy', id='buddy0'>Left click to copy, right click to paste</button>
+      </div>
+
+      <///////////////////HTML UP HERE///////////////////>
+
+      <///////////////JAVASCRIPT DOWN HERE///////////////>
+
+      <script>
+        window.getCount = function(parent, getChildrensChildren){//accepts DOM object and bool, counts children(and grandchildren) of DOM object
+            var relevantChildren = 0;
+            var children = parent.childNodes.length;
+            for(var i=0; i < children; i++){
+                if(parent.childNodes[i].nodeType != 3){
+                    if(getChildrensChildren)
+                        relevantChildren += getCount(parent.childNodes[i],true);
+                    relevantChildren++;
+                }
+            }
+            return relevantChildren;
+        }
+        async function makeButton(input) {//makes a new button
+          var btngrp = document.getElementById('btn-group');//get reference to button group
+          var btn = document.createElement('BUTTON');//make new button
+          btn.innerHTML = 'Left click to copy, right click to paste';
+          btn.class = 'buddy';
+          btn.id= 'buddy'+getCount(btngrp);//set id to position of button
+          btngrp.append(btn);//append button to end of group
+        }
+        async function paste(input) {//accepts html element and sets innerHTML to clipboard contents
+          const text = await navigator.clipboard.readText();
+          input.innerHTML = text;
+        }
+
+        async function copy(input) {//accepts html element and copies innerHTML to clipboard
+
+          var text = input.innerHTML;
+
+          try {
+            await navigator.clipboard.writeText(text);
+            console.log('Element contents copied to clipboard');
+          } catch (err) {
+            console.error('Failed to copy: ', err);
+          }
+        }
+
+
+        async function newWindow(){//reopen page in a popup to allow full resizing
+          //first clear current page
+          setTimeout(window.close, 10);
+          var divs = document.getElementsByTagName('div');
+          for (var i = 0, l = divs.length; i < l; i++) {
+              if (divs[i].getAttribute('class') == 'btn-group')
+                  if (divs[i].style.display == 'none') divs[i].style.display = '';
+                  else divs[i].style.display = 'none';
+          }
+          var params = [
+              'height='+screen.height,
+              'width='+420,
+              'fullscreen=yes' // only works in IE, but here for completeness
+          ].join(',');
+               // and any other options from
+               // https://developer.mozilla.org/en/DOM/window.open
+               //window.open(document.URL, '_blank', 'location=yes,height=,width=420,scrollbars=yes,status=yes');
+          //
+
+          var popup = window.open(document.URL, '_blank', params, 'location=no,scrollbars=no,status=no');
+          popup.moveTo(0,0);
+
+          setTimeout(window.close, 10);
+          /*
+          var divs = document.getElementsByTagName('div');
+          for (var i = 0, l = divs.length; i < l; i++) {
+              if (divs[i].getAttribute('class') == 'new-window')
+                  if (divs[i].style.display == 'none') divs[i].style.display = '';
+                  else divs[i].style.display = 'none';
+          }
+          */
+        }
+        /////////////function definitions up here/////////////
+
+        //this code block gets the clicked element
+        document.addEventListener('click', function(e) {//left click listener
+          if (e.button == 0) {
+            e = e || window.event;
+            var target = e.target || e.srcElement;//get clicked element as object and store
+            text = target.textContent || target.innerText;
+            if (target == '[object HTMLButtonElement]'){//if the element is a button do this
+              copy(target)
+              //alert('left clicked button with "'+target.innerHTML+'" as innerHTML');
+            }
+          }
+        }, false);
+        document.addEventListener('auxclick', function(e) {//middle click listener
+          if (e.button == 1) {
+            e = e || window.event;
+            var target = e.target || e.srcElement;//get clicked element as object and store
+            text = target.textContent || target.innerText;
+            if (target == '[object HTMLButtonElement]'){//if the element is a button do this
+              //alert('middle clicked button with "'+target.innerHTML+'" as innerHTML');
+            }
+          }
+        }, false);
+        document.addEventListener('auxclick', function(e) {//right click listener
+          if (e.button == 2) {
+            e = e || window.event;
+            var target = e.target || e.srcElement;//get clicked element as object and store
+            text = target.textContent || target.innerText;
+            if (target == '[object HTMLButtonElement]'){//if the element is a button do this
+              paste(target);
+              var btngrp = document.getElementById('btn-group');//get reference to button group
+              if (target.id[target.id.length-1] == (getCount(btngrp) - 1) ){//if button rightclicked is the last button
+                makeButton();
+              }
+              //alert('middle clicked button with "'+target.innerHTML+'" as innerHTML');
+            }
+          }
+        }, false);
+        if (window.innerWidth < (screen.width/3) ){//on page load hide "popOut" div if window is <1/3 of the screen
+          document.getElementById('popOut').style.display = 'none';
+        }
+      </script>
+    </body>
+</html>
