@@ -40,7 +40,12 @@
       </div>
 
       <div class="btn-group", id='btn-group'>
-        <button class='buddy', id='buddy0'>Left click to copy, right click to paste</button>
+
+      </div>
+
+      <div class="inputs center", id='inputs'>
+        <label for="initials">Initials:</label>
+        <input type="text" id="initials" name="initials" size="1">
       </div>
 
       <///////////////////HTML UP HERE///////////////////>
@@ -64,15 +69,14 @@
           var btngrp = document.getElementById('btn-group');//get reference to button group
           var btn = document.createElement('BUTTON');//make new button
           btn.innerHTML = 'Left click to copy, right click to paste';
-          btn.class = 'buddy';
-          btn.id= 'buddy'+getCount(btngrp);//set id to position of button
+          btn.classList.add('buddy');
+          btn.id= getCount(btngrp);//set id to position of button
           btngrp.append(btn);//append button to end of group
         }
         async function paste(input) {//accepts html element and sets innerHTML to clipboard contents
           const text = await navigator.clipboard.readText();
           input.innerHTML = text;
         }
-
         async function copy(input) {//accepts html element and copies innerHTML to clipboard
 
           var text = input.innerHTML;
@@ -84,8 +88,6 @@
             console.error('Failed to copy: ', err);
           }
         }
-
-
         async function newWindow(){//reopen page in a popup to allow full resizing
           //first clear current page
           setTimeout(window.close, 10);
@@ -118,7 +120,19 @@
           }
           */
         }
+        async function upDateButtons(input){
+
+
+        }
         /////////////function definitions up here/////////////
+        //This codeblock included to generate the first button programatically
+        var btngrp = document.getElementById('btn-group');//get reference to button group
+        var btn = document.createElement('BUTTON');//make new button
+        btn.innerHTML = 'Left click to copy, right click to paste';
+        btn.classList.add('buddy');
+        btn.id= getCount(btngrp);//set id to position of button
+        btngrp.append(btn);//append button to end of group
+        //Including this solved an issue with first buttons class being undefined
 
         //this code block gets the clicked element
         document.addEventListener('click', function(e) {//left click listener
@@ -127,9 +141,10 @@
             var target = e.target || e.srcElement;//get clicked element as object and store
             text = target.textContent || target.innerText;
             if (target == '[object HTMLButtonElement]'){//if the element is a button do this
-              copy(target)
+              copy(target);
               //alert('left clicked button with "'+target.innerHTML+'" as innerHTML');
             }
+            upDateButtons(target);
           }
         }, false);
         document.addEventListener('auxclick', function(e) {//middle click listener
@@ -138,7 +153,14 @@
             var target = e.target || e.srcElement;//get clicked element as object and store
             text = target.textContent || target.innerText;
             if (target == '[object HTMLButtonElement]'){//if the element is a button do this
-              //alert('middle clicked button with "'+target.innerHTML+'" as innerHTML');
+              if(target.classList.contains('buddy')){//toggle button class between a dated or non dated button
+                target.classList.remove('buddy');
+                target.classList.add('dateBuddy');
+              }else if(target.classList.contains('dateBuddy')){//toggle button class between a dated or non dated button
+                target.classList.add('buddy');
+                target.classList.remove('dateBuddy');
+              }
+              console.log('middle clicked button id:'+target.id+"and class: "+target.class);
             }
           }
         }, false);
@@ -146,14 +168,15 @@
           if (e.button == 2) {
             e = e || window.event;
             var target = e.target || e.srcElement;//get clicked element as object and store
-            text = target.textContent || target.innerText;
+            //text = target.textContent || target.innerText;
             if (target == '[object HTMLButtonElement]'){//if the element is a button do this
+              //console.log('element is button');
               paste(target);
               var btngrp = document.getElementById('btn-group');//get reference to button group
-              if (target.id[target.id.length-1] == (getCount(btngrp) - 1) ){//if button rightclicked is the last button
+              //console.log("(target.id == (getCount(btngrp) - 1) ) : "+"("+target.id+" == ("+getCount(btngrp)+" - 1) )");
+              if (target.id == (getCount(btngrp) - 1) ){//if button rightclicked is the last button
                 makeButton();
               }
-              //alert('middle clicked button with "'+target.innerHTML+'" as innerHTML');
             }
           }
         }, false);
