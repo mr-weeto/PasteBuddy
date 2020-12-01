@@ -42,11 +42,12 @@
       <div class="btn-group", id='btn-group'>
 
       </div>
-
+      <!---
       <div class="inputs center", id='inputs'>
         <label for="initials">Initials:</label>
         <input type="text" id="initials" name="initials" size="1">
       </div>
+      ---->
 
       <///////////////////HTML UP HERE///////////////////>
 
@@ -70,12 +71,14 @@
           var btn = document.createElement('BUTTON');//make new button
           btn.innerHTML = 'Left click to copy, right click to paste';
           btn.classList.add('buddy');
+          btn.value ='Left click to copy, right click to paste';
           btn.id= getCount(btngrp);//set id to position of button
           btngrp.append(btn);//append button to end of group
         }
         async function paste(input) {//accepts html element and sets innerHTML to clipboard contents
           const text = await navigator.clipboard.readText();
           input.innerHTML = text;
+          input.value = text;
         }
         async function copy(input) {//accepts html element and copies innerHTML to clipboard
 
@@ -120,18 +123,30 @@
           }
           */
         }
+        /* module not ready yet. start work here
         async function upDateButtons(input){
+          var test = document.getElementsByClassName('dateBuddy');
+          //console.log(test.item(0).innerHTML);
+          //console.log(test.length);
+          var d = new Date(Date.now()).toLocaleString().split(',')[0];
+          var dLength = d.toString().length;
+          var dateAppend = (' -'+document.getElementById('initials').value + ' ' + d);
+          for (i=0; i<test.length; i++){
+            var text = String(test.item(i).innerHTML);
+            var textEnd = text.substr( (text.length-dLength), text.length);
+            console.log(textEnd);
 
 
-        }
+
+
+            test.item(i).innerHTML += dateAppend;
+
+
+          }
+        }*/
         /////////////function definitions up here/////////////
         //This codeblock included to generate the first button programatically
-        var btngrp = document.getElementById('btn-group');//get reference to button group
-        var btn = document.createElement('BUTTON');//make new button
-        btn.innerHTML = 'Left click to copy, right click to paste';
-        btn.classList.add('buddy');
-        btn.id= getCount(btngrp);//set id to position of button
-        btngrp.append(btn);//append button to end of group
+        makeButton();
         //Including this solved an issue with first buttons class being undefined
 
         //this code block gets the clicked element
@@ -160,7 +175,7 @@
                 target.classList.add('buddy');
                 target.classList.remove('dateBuddy');
               }
-              console.log('middle clicked button id:'+target.id+"and class: "+target.class);
+              console.log('middle clicked button id:'+target.id+"and class: "+target.classList);
             }
           }
         }, false);
