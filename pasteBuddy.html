@@ -1,38 +1,50 @@
 <html>
     <head>
         <title></title>
-        <style>
-        .btn-group button {
-          background-color: #4CAF50; /* Green background */
-          border: 1px solid green; /* Green border */
-          color: white; /* White text */
-          padding: 10px 24px; /* Some padding */
-          cursor: pointer; /* Pointer/hand icon */
-          width: 100%; /* Set a width if needed */
-          display: block; /* Make the buttons appear below each other */
-        }
+      <style>
+      .buddy  {
+        background-color: #3476AC; /* Green background */
+        border: 1px solid #164963; /* Green border */
+        color: white; /* White text */
+        padding: 10px 24px; /* Some padding */
+        cursor: pointer; /* Pointer/hand icon */
+        width: 100%; /* Set a width if needed */
+        display: block; /* Make the buttons appear below each other */
+      }
+      .dateBuddy  {
+        background-color: #FF9001; /* Green background */
+        border: 1px solid #A04916; /* Green border */
+        color: white; /* White text */
+        padding: 10px 24px; /* Some padding */
+        cursor: pointer; /* Pointer/hand icon */
+        width: 100%; /* Set a width if needed */
+        display: block; /* Make the buttons appear below each other */
+      }
 
-        .btn-group button:not(:last-child) {
-          border-bottom: none; /* Prevent double borders */
-        }
+      .buddy :not(:last-child) {
+        border-bottom: none; /* Prevent double borders */
+      }
 
-        /* Add a background color on hover */
-        .btn-group button:hover {
-          background-color: #3e8e41;
-        }
-        .new-window{
+      /* Add a background color on hover */
+      .buddy:hover {
+        background-color: #27577F;
+      }
+      .dateBuddy:hover {
+        background-color: #B76501;
+      }
+      .new-window{
 
-        }
-        .center {
-          text-align: center;
-        }
-        .hidden{
-          visibility: hidden;
-        }
-        </style>
+      }
+      .center {
+        text-align: center;
+      }
+      .hidden{
+        visibility: hidden;
+      }
+    </style>
     </head>
 
-    <body>
+    <body style="background-color:#F5F5F5;">
       <div class='new-window center', id='popOut'>
         <a onclick="newWindow();">
           Pop Out Window
@@ -42,12 +54,12 @@
       <div class="btn-group", id='btn-group'>
 
       </div>
-      <!---
+
       <div class="inputs center", id='inputs'>
         <label for="initials">Initials:</label>
         <input type="text" id="initials" name="initials" size="1">
       </div>
-      ---->
+
 
       <///////////////////HTML UP HERE///////////////////>
 
@@ -123,27 +135,31 @@
           }
           */
         }
-        /* module not ready yet. start work here
+
         async function upDateButtons(input){
-          var test = document.getElementsByClassName('dateBuddy');
-          //console.log(test.item(0).innerHTML);
-          //console.log(test.length);
+          var dateBuddyVar = document.getElementsByClassName('dateBuddy');
+          var buddyVar = document.getElementsByClassName('buddy');
           var d = new Date(Date.now()).toLocaleString().split(',')[0];
           var dLength = d.toString().length;
           var dateAppend = (' -'+document.getElementById('initials').value + ' ' + d);
-          for (i=0; i<test.length; i++){
-            var text = String(test.item(i).innerHTML);
+          for (i=0; i<dateBuddyVar.length; i++){//this loops through datebuddy buttons and updates them
+            var text = String(dateBuddyVar.item(i).innerHTML);
             var textEnd = text.substr( (text.length-dLength), text.length);
-            console.log(textEnd);
+            var dateEnd = dateAppend.substr( (dateAppend.length-dLength), text.length);
 
+            //console.log(textEnd +' & '+ dateEnd);
 
-
-
-            test.item(i).innerHTML += dateAppend;
+            if(textEnd != dateEnd){
+              dateBuddyVar.item(i).innerHTML = dateBuddyVar.item(i).value;
+              dateBuddyVar.item(i).innerHTML += dateAppend;
+            }
 
 
           }
-        }*/
+          for (i=0; i<buddyVar.length; i++){//this loops through buddy buttons and updates them
+            buddyVar.item(i).innerHTML = buddyVar.item(i).value;
+          }
+        }
         /////////////function definitions up here/////////////
         //This codeblock included to generate the first button programatically
         makeButton();
@@ -155,11 +171,12 @@
             e = e || window.event;
             var target = e.target || e.srcElement;//get clicked element as object and store
             text = target.textContent || target.innerText;
+            upDateButtons(target);
             if (target == '[object HTMLButtonElement]'){//if the element is a button do this
               copy(target);
               //alert('left clicked button with "'+target.innerHTML+'" as innerHTML');
             }
-            upDateButtons(target);
+
           }
         }, false);
         document.addEventListener('auxclick', function(e) {//middle click listener
@@ -176,6 +193,7 @@
                 target.classList.remove('dateBuddy');
               }
               console.log('middle clicked button id:'+target.id+"and class: "+target.classList);
+              upDateButtons(target);
             }
           }
         }, false);
