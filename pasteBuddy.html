@@ -81,7 +81,7 @@
         async function makeButton(input) {//makes a new button
           var btngrp = document.getElementById('btn-group');//get reference to button group
           var btn = document.createElement('BUTTON');//make new button
-          btn.innerHTML = 'Left click to copy, right click to paste';
+          btn.innerHTML = 'Left click to copy, right click to paste'; //display
           btn.classList.add('buddy');
           btn.value ='Left click to copy, right click to paste';
           btn.id= getCount(btngrp);//set id to position of button
@@ -89,12 +89,31 @@
         }
         async function paste(input) {//accepts html element and sets innerHTML to clipboard contents
           const text = await navigator.clipboard.readText();
-          input.innerHTML = text;
           input.value = text;
+          var stringEnd = text.length;
+          var shownCharacters = (window.innerWidth / 20); //sizes shown text by window size
+          if (stringEnd > (shownCharacters * 2 + 11) ){
+            input.innerHTML = text.substr(0,shownCharacters) + "..." + text.substr((stringEnd - shownCharacters), stringEnd);
+          }
+          else{
+            input.innerHTML = text;
+          }
+
         }
         async function copy(input) {//accepts html element and copies innerHTML to clipboard
+          console.log(input);
+          if (input.className == "dateBuddy"){
+            console.log("in input class = datebuddy");
+            var d = new Date(Date.now()).toLocaleString().split(',')[0];
+            var dLength = d.toString().length;
+            var dateAppend = (' -'+document.getElementById('initials').value + ' ' + d);
 
-          var text = input.innerHTML;
+            var text = input.value + dateAppend;
+          }
+          else{
+            //console.log("in copy function else block");
+            var text = input.value;
+          }
 
           try {
             await navigator.clipboard.writeText(text);
@@ -142,22 +161,51 @@
           var d = new Date(Date.now()).toLocaleString().split(',')[0];
           var dLength = d.toString().length;
           var dateAppend = (' -'+document.getElementById('initials').value + ' ' + d);
+
+
           for (i=0; i<dateBuddyVar.length; i++){//this loops through datebuddy buttons and updates them
-            var text = String(dateBuddyVar.item(i).innerHTML);
+            var text = String(dateBuddyVar.item(i).value);
             var textEnd = text.substr( (text.length-dLength), text.length);
             var dateEnd = dateAppend.substr( (dateAppend.length-dLength), text.length);
 
             //console.log(textEnd +' & '+ dateEnd);
 
             if(textEnd != dateEnd){
-              dateBuddyVar.item(i).innerHTML = dateBuddyVar.item(i).value;
-              dateBuddyVar.item(i).innerHTML += dateAppend;
+              //dateBuddyVar.item(i).innerHTML = dateBuddyVar.item(i).value;
+              //dateBuddyVar.item(i).innerHTML += dateAppend;
+              //old working text up here
+
+              //code that uses new text display compression feature below
+              var text = dateBuddyVar.item(i).value;//start
+              var stringEnd = text.length;
+              var shownCharacters = ( (window.innerWidth / 20) - 6); //sizes shown text by window size. -6 to accomodate for date display
+              if (stringEnd > (shownCharacters * 2 + 11) ){
+                dateBuddyVar.item(i).innerHTML = text.substr(0,shownCharacters) + "..." + text.substr((stringEnd - shownCharacters), stringEnd);
+                dateBuddyVar.item(i).innerHTML += dateAppend;
+
+              }
+              else{
+                dateBuddyVar.item(i).innerHTML = text;
+                dateBuddyVar.item(i).innerHTML += dateAppend;
+              }
             }
 
 
           }
           for (i=0; i<buddyVar.length; i++){//this loops through buddy buttons and updates them
-            buddyVar.item(i).innerHTML = buddyVar.item(i).value;
+            //buddyVar.item(i).innerHTML = buddyVar.item(i).value;
+            //old working code up here
+
+            //code that uses new text display compression feature below
+            var text = buddyVar.item(i).value;//start
+            var stringEnd = text.length;
+            var shownCharacters = (window.innerWidth / 20); //sizes shown text by window size
+            if (stringEnd > (shownCharacters * 2 + 11) ){
+              buddyVar.item(i).innerHTML = text.substr(0,shownCharacters) + "..." + text.substr((stringEnd - shownCharacters), stringEnd);
+            }
+            else{
+              buddyVar.item(i).innerHTML = text;
+            }
           }
         }
         /////////////function definitions up here/////////////
