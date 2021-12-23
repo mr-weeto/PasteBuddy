@@ -86,6 +86,28 @@
           btn.value ='Left click to copy, right click to paste';
           btn.id= getCount(btngrp);//set id to position of button
           btngrp.append(btn);//append button to end of group
+
+          localStorage.setItem("button"+btn.id, btn.value);//store value in memory
+        }
+        async function restoreButton(input) {//makes a new button, accepts a number
+          console.log(" in restoreButton");
+          var btngrp = document.getElementById('btn-group');//get reference to button group
+          var btn = document.createElement('BUTTON');//make new button
+          btn.classList.add('buddy');
+          btn.id= getCount(btngrp);//set id to position of button
+          btn.value = localStorage.getItem("button"+input);
+
+          var text = btn.value;
+          var stringEnd = text.length;
+          var shownCharacters = (window.innerWidth / 20); //sizes shown text by window size
+          if (stringEnd > (shownCharacters * 2 + 11) ){
+            input.innerHTML = text.substr(0,shownCharacters) + "..." + text.substr((stringEnd - shownCharacters), stringEnd);
+          }
+          else{
+            input.innerHTML = text;
+          }
+
+          btngrp.append(btn);//append button to end of group
         }
         async function paste(input) {//accepts html element and sets innerHTML to clipboard contents
           const text = await navigator.clipboard.readText();
@@ -99,6 +121,7 @@
             input.innerHTML = text;
           }
 
+          localStorage.setItem("button"+input.id, text);//store value in memory
         }
         async function copy(input) {//accepts html element and copies innerHTML to clipboard
           console.log(input);
@@ -164,6 +187,10 @@
 
 
           for (i=0; i<dateBuddyVar.length; i++){//this loops through datebuddy buttons and updates them
+            //var localVar = localStorage.getItem("button"+dateBuddyVar.item(i).id);
+            //var text = String(localVar);
+            //code to use localstorage instead of value up here
+
             var text = String(dateBuddyVar.item(i).value);
             var textEnd = text.substr( (text.length-dLength), text.length);
             var dateEnd = dateAppend.substr( (dateAppend.length-dLength), text.length);
@@ -210,7 +237,27 @@
         }
         /////////////function definitions up here/////////////
         //This codeblock included to generate the first button programatically
-        makeButton();
+
+        if( localStorage.getItem("button0" == null) ){
+          makeButton();
+        }else{
+          var index = 0;
+          var loopFlag = true;
+          while(loopFlag){
+            console.log("in loopflag: "+index)
+            var value = localStorage.getItem("button"+index);
+            if(value !== null){
+              restoreButton(index);
+              index += 1;
+            }
+            else{
+              loopFlag = false;
+            }
+          }
+
+          upDateButtons();
+        }
+
         //Including this solved an issue with first buttons class being undefined
 
         //this code block gets the clicked element
@@ -263,6 +310,12 @@
         }, false);
         if (window.innerWidth < (screen.width/3) ){//on page load hide "popOut" div if window is <1/3 of the screen
           document.getElementById('popOut').style.display = 'none';
+        }
+
+        function stringIsEmpty(value) {
+
+            return value ? value.trim().length == 0 : true;
+
         }
       </script>
     </body>
