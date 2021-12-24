@@ -237,14 +237,15 @@
         }
         /////////////function definitions up here/////////////
         //This codeblock included to generate the first button programatically
-
-        if( localStorage.getItem("button0" == null) ){
+        var check = localStorage.getItem("button0");
+        if( check == null ){
           makeButton();
         }else{
           var index = 0;
           var loopFlag = true;
           while(loopFlag){
-            console.log("in loopflag: "+index)
+            console.log("in loopflag: "+index);
+            console.log(localStorage.getItem("button0"));
             var value = localStorage.getItem("button"+index);
             if(value !== null){
               restoreButton(index);
