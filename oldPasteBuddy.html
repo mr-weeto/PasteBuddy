@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>PASTEBUDDY</title>
+        <title></title>
       <style>
       .buddy  {
         background-color: #3476AC; /* Green background */
@@ -81,10 +81,13 @@
         async function makeButton(input) {//makes a new button
           var btngrp = document.getElementById('btn-group');//get reference to button group
           var btn = document.createElement('BUTTON');//make new button
+          btn.innerHTML = 'Left(copy)|Right(paste)|Mid(add date)'; //display
           btn.classList.add('buddy');
+          btn.value ='Left click to copy, right click to paste';
           btn.id= getCount(btngrp);//set id to position of button
-          setButtonData(btn, 'Left(copy)|Right(paste)|Mid(add date)');
           btngrp.append(btn);//append button to end of group
+
+          localStorage.setItem("button"+btn.id, btn.value);//store value in memory
         }
         async function restoreButton(input) {//makes a new button, accepts a number
           console.log(" in restoreButton");
@@ -231,11 +234,6 @@
               buddyVar.item(i).innerHTML = text;
             }
           }
-        }
-        async function setButtonData(button, data) {//takes reference to button, sets button value, innerHTML, and localstorage data
-          button.innerHTML = data; //display
-          button.value =data;
-          localStorage.setItem("button"+button.id, data);//store value in memory
         }
         /////////////function definitions up here/////////////
         //This codeblock included to generate the first button programatically
