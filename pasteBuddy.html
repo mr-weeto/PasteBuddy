@@ -82,47 +82,21 @@
           var btngrp = document.getElementById('btn-group');//get reference to button group
           var btn = document.createElement('BUTTON');//make new button
           btn.classList.add('buddy');
+          btn.classList.add('js-noMenu');
           btn.id= getCount(btngrp);//set id to position of button
-          setButtonData(btn, 'Left(copy)|Right(paste)|Mid(add date)');
+          setButtonData(btn, input);
           btngrp.append(btn);//append button to end of group
         }
         async function restoreButton(input) {//makes a new button, accepts a number
-          console.log(" in restoreButton");
-          var btngrp = document.getElementById('btn-group');//get reference to button group
-          var btn = document.createElement('BUTTON');//make new button
-          btn.classList.add('buddy');
-          btn.id= getCount(btngrp);//set id to position of button
-          btn.value = localStorage.getItem("button"+input);
-
-          var text = btn.value;
-          var stringEnd = text.length;
-          var shownCharacters = (window.innerWidth / 20); //sizes shown text by window size
-          if (stringEnd > (shownCharacters * 2 + 11) ){
-            input.innerHTML = text.substr(0,shownCharacters) + "..." + text.substr((stringEnd - shownCharacters), stringEnd);
-          }
-          else{
-            input.innerHTML = text;
-          }
-
-          btngrp.append(btn);//append button to end of group
+          makeButton(localStorage.getItem("button"+input)); //gets button data via localstorage key 
         }
         async function paste(input) {//accepts html element and sets innerHTML to clipboard contents
           const text = await navigator.clipboard.readText();
-          input.value = text;
-          var stringEnd = text.length;
-          var shownCharacters = (window.innerWidth / 20); //sizes shown text by window size
-          if (stringEnd > (shownCharacters * 2 + 11) ){
-            input.innerHTML = text.substr(0,shownCharacters) + "..." + text.substr((stringEnd - shownCharacters), stringEnd);
-          }
-          else{
-            input.innerHTML = text;
-          }
-
-          localStorage.setItem("button"+input.id, text);//store value in memory
+          setButtonData(input, text);
         }
-        async function copy(input) {//accepts html element and copies innerHTML to clipboard
+        async function copy(input) {//accepts html element and copies value to clipboard
           console.log(input);
-          if (input.className == "dateBuddy"){
+          if (input.className == "dateBuddy"){//if dated button, add current date and optional initials to end of copied text
             console.log("in input class = datebuddy");
             var d = new Date(Date.now()).toLocaleString().split(',')[0];
             var dLength = d.toString().length;
@@ -184,21 +158,10 @@
 
 
           for (i=0; i<dateBuddyVar.length; i++){//this loops through datebuddy buttons and updates them
-            //var localVar = localStorage.getItem("button"+dateBuddyVar.item(i).id);
-            //var text = String(localVar);
-            //code to use localstorage instead of value up here
-
             var text = String(dateBuddyVar.item(i).value);
             var textEnd = text.substr( (text.length-dLength), text.length);
             var dateEnd = dateAppend.substr( (dateAppend.length-dLength), text.length);
-
-            //console.log(textEnd +' & '+ dateEnd);
-
             if(textEnd != dateEnd){
-              //dateBuddyVar.item(i).innerHTML = dateBuddyVar.item(i).value;
-              //dateBuddyVar.item(i).innerHTML += dateAppend;
-              //old working text up here
-
               //code that uses new text display compression feature below
               var text = dateBuddyVar.item(i).value;//start
               var stringEnd = text.length;
@@ -217,31 +180,26 @@
 
           }
           for (i=0; i<buddyVar.length; i++){//this loops through buddy buttons and updates them
-            //buddyVar.item(i).innerHTML = buddyVar.item(i).value;
-            //old working code up here
-
-            //code that uses new text display compression feature below
-            var text = buddyVar.item(i).value;//start
-            var stringEnd = text.length;
-            var shownCharacters = (window.innerWidth / 20); //sizes shown text by window size
-            if (stringEnd > (shownCharacters * 2 + 11) ){
-              buddyVar.item(i).innerHTML = text.substr(0,shownCharacters) + "..." + text.substr((stringEnd - shownCharacters), stringEnd);
-            }
-            else{
-              buddyVar.item(i).innerHTML = text;
-            }
+            setButtonData(buddyVar.item(i), buddyVar.item(i).value);
           }
         }
         async function setButtonData(button, data) {//takes reference to button, sets button value, innerHTML, and localstorage data
-          button.innerHTML = data; //display
-          button.value =data;
+          var stringEnd = data.length;
+          var shownCharacters = (window.innerWidth / 20); //sizes shown text by window size
+          if (stringEnd > (shownCharacters * 2 + 11) ){//if text needs to be compressed
+            button.innerHTML = data.substr(0,shownCharacters) + "..." + data.substr((stringEnd - shownCharacters), stringEnd);
+          }
+          else{
+            button.innerHTML = data;
+          }
+          button.value = data;
           localStorage.setItem("button"+button.id, data);//store value in memory
         }
         /////////////function definitions up here/////////////
         //This codeblock included to generate the first button programatically
         var check = localStorage.getItem("button0");
         if( check == null ){
-          makeButton();
+          makeButton('Left(copy)|Right(paste)|Mid(add date)');
         }else{
           var index = 0;
           var loopFlag = true;
@@ -299,14 +257,11 @@
           if (e.button == 2) {
             e = e || window.event;
             var target = e.target || e.srcElement;//get clicked element as object and store
-            //text = target.textContent || target.innerText;
             if (target == '[object HTMLButtonElement]'){//if the element is a button do this
-              //console.log('element is button');
               paste(target);
               var btngrp = document.getElementById('btn-group');//get reference to button group
-              //console.log("(target.id == (getCount(btngrp) - 1) ) : "+"("+target.id+" == ("+getCount(btngrp)+" - 1) )");
               if (target.id == (getCount(btngrp) - 1) ){//if button rightclicked is the last button
-                makeButton();
+                makeButton('Left(copy)|Right(paste)|Mid(add date)');
               }
             }
           }
@@ -314,12 +269,11 @@
         if (window.innerWidth < (screen.width/3) ){//on page load hide "popOut" div if window is <1/3 of the screen
           document.getElementById('popOut').style.display = 'none';
         }
-
-        function stringIsEmpty(value) {
-
-            return value ? value.trim().length == 0 : true;
-
-        }
+        // Source - https://stackoverflow.com/a/51958093
+        // Posted by toastrackengima, modified by community. See post 'Timeline' for change history
+        // Retrieved 2026-04-28, License - CC BY-SA 4.0
+        // "for preventing context menu popup when copying text"
+        [...document.querySelectorAll(".js-noMenu")].forEach( el => el.addEventListener('contextmenu', e => e.preventDefault()));
       </script>
     </body>
 </html>
