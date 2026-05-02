@@ -82,6 +82,7 @@
           var btngrp = document.getElementById('btn-group');//get reference to button group
           var btn = document.createElement('BUTTON');//make new button
           btn.classList.add('buddy');
+          btn.classList.add('textBuddy');
           btn.classList.add('js-noMenu');
           btn.id= getCount(btngrp);//set id to position of button
           setButtonData(btn, input);
@@ -95,7 +96,6 @@
           setButtonData(input, text);
         }
         async function copy(input) {//accepts html element and copies value to clipboard
-          console.log(input);
           if (input.className == "dateBuddy"){//if dated button, add current date and optional initials to end of copied text
             console.log("in input class = datebuddy");
             var d = new Date(Date.now()).toLocaleString().split(',')[0];
@@ -149,50 +149,39 @@
           */
         }
 
-        async function upDateButtons(input){
-          var dateBuddyVar = document.getElementsByClassName('dateBuddy');
+        async function upDateButtons(){
           var buddyVar = document.getElementsByClassName('buddy');
-          var d = new Date(Date.now()).toLocaleString().split(',')[0];
-          var dLength = d.toString().length;
-          var dateAppend = (' -'+document.getElementById('initials').value + ' ' + d);
-
-
-          for (i=0; i<dateBuddyVar.length; i++){//this loops through datebuddy buttons and updates them
-            var text = String(dateBuddyVar.item(i).value);
-            var textEnd = text.substr( (text.length-dLength), text.length);
-            var dateEnd = dateAppend.substr( (dateAppend.length-dLength), text.length);
-            if(textEnd != dateEnd){
-              //code that uses new text display compression feature below
-              var text = dateBuddyVar.item(i).value;//start
-              var stringEnd = text.length;
-              var shownCharacters = ( (window.innerWidth / 20) - 6); //sizes shown text by window size. -6 to accomodate for date display
-              if (stringEnd > (shownCharacters * 2 + 11) ){
-                dateBuddyVar.item(i).innerHTML = text.substr(0,shownCharacters) + "..." + text.substr((stringEnd - shownCharacters), stringEnd);
-                dateBuddyVar.item(i).innerHTML += dateAppend;
-
-              }
-              else{
-                dateBuddyVar.item(i).innerHTML = text;
-                dateBuddyVar.item(i).innerHTML += dateAppend;
-              }
-            }
-
-
-          }
-          for (i=0; i<buddyVar.length; i++){//this loops through buddy buttons and updates them
-            setButtonData(buddyVar.item(i), buddyVar.item(i).value);
+          for (i=0; i<buddyVar.length-1; i++){
+              setButtonData(buddyVar.item(i), buddyVar.item(i).value);
           }
         }
+        function getDateAppend(){
+          var d = new Date(Date.now()).toLocaleString().split(',')[0];
+          var dateAppend = (' -'+document.getElementById('initials').value + ' ' + d);
+          return dateAppend;
+        }
         async function setButtonData(button, data) {//takes reference to button, sets button value, innerHTML, and localstorage data
-          var stringEnd = data.length;
           var shownCharacters = (window.innerWidth / 20); //sizes shown text by window size
-          if (stringEnd > (shownCharacters * 2 + 11) ){//if text needs to be compressed
-            button.innerHTML = data.substr(0,shownCharacters) + "..." + data.substr((stringEnd - shownCharacters), stringEnd);
+          if (button.classList.contains('dateBuddy')){
+            var dateAppend = getDateAppend();
+            if (data.length > ((shownCharacters-6) * 2 + 11) ){//text compression
+              button.innerHTML = data.substr(0,dateShownCharacters) + "..." + data.substr((data.length - dateShownCharacters), data.length);
+              button.innerHTML += dateAppend;
+            }
+            else{
+              button.innerHTML = data;
+              button.innerHTML += dateAppend;
+            }
           }
-          else{
-            button.innerHTML = data;
+          else{//not dateBuddy
+            if (data.length > (shownCharacters * 2 + 11) ){//if text needs to be compressed
+              button.innerHTML = data.substr(0,shownCharacters) + "..." + data.substr((data.length - shownCharacters), data.length);
+            }
+            else{
+              button.innerHTML = data;
+            }
           }
-          button.value = data;
+          button.value = data;//set value
           localStorage.setItem("button"+button.id, data);//store value in memory
         }
         /////////////function definitions up here/////////////
@@ -205,7 +194,6 @@
           var loopFlag = true;
           while(loopFlag){
             console.log("in loopflag: "+index);
-            console.log(localStorage.getItem("button0"));
             var value = localStorage.getItem("button"+index);
             if(value !== null){
               restoreButton(index);
@@ -241,11 +229,11 @@
             var target = e.target || e.srcElement;//get clicked element as object and store
             text = target.textContent || target.innerText;
             if (target == '[object HTMLButtonElement]'){//if the element is a button do this
-              if(target.classList.contains('buddy')){//toggle button class between a dated or non dated button
-                target.classList.remove('buddy');
+              if(target.classList.contains('textBuddy')){//toggle button class between a dated or non dated button
+                target.classList.remove('textBuddy');
                 target.classList.add('dateBuddy');
               }else if(target.classList.contains('dateBuddy')){//toggle button class between a dated or non dated button
-                target.classList.add('buddy');
+                target.classList.add('textBuddy');
                 target.classList.remove('dateBuddy');
               }
               console.log('middle clicked button id:'+target.id+"and class: "+target.classList);
