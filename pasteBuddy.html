@@ -96,16 +96,13 @@
           setButtonData(input, text);
         }
         async function copy(input) {//accepts html element and copies value to clipboard
-          if (input.className == "dateBuddy"){//if dated button, add current date and optional initials to end of copied text
+          if (input.classList.contains('dateBuddy')){
             console.log("in input class = datebuddy");
-            var d = new Date(Date.now()).toLocaleString().split(',')[0];
-            var dLength = d.toString().length;
-            var dateAppend = (' -'+document.getElementById('initials').value + ' ' + d);
+            var dateAppend = getDateAppend(); 
 
             var text = input.value + dateAppend;
           }
           else{
-            //console.log("in copy function else block");
             var text = input.value;
           }
 
@@ -165,7 +162,7 @@
           if (button.classList.contains('dateBuddy')){
             var dateAppend = getDateAppend();
             if (data.length > ((shownCharacters-6) * 2 + 11) ){//text compression
-              button.innerHTML = data.substr(0,dateShownCharacters) + "..." + data.substr((data.length - dateShownCharacters), data.length);
+              button.innerHTML = data.substr(0,(shownCharacters-6)) + "..." + data.substr((data.length - (shownCharacters-6)), data.length);
               button.innerHTML += dateAppend;
             }
             else{
