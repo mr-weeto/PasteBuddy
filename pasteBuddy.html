@@ -88,8 +88,11 @@
           setButtonData(btn, input);
           btngrp.append(btn);//append button to end of group
         }
-        async function restoreButton(input) {//makes a new button, accepts a number
-          makeButton(localStorage.getItem("button"+input)); //gets button data via localstorage key 
+        async function restoreButtons() {
+          var buttonData = getButtonDataFromLocalStorage();
+          for (i=0;i<buttonData.length; i++){
+             makeButton(buttonData[i]);           
+          }
         }
         async function paste(input) {//accepts html element and sets innerHTML to clipboard contents
           const text = await navigator.clipboard.readText();
@@ -162,7 +165,7 @@
           if (button.classList.contains('dateBuddy')){
             var dateAppend = getDateAppend();
             if (data.length > ((shownCharacters-6) * 2 + 11) ){//text compression
-              button.innerHTML = data.substr(0,(shownCharacters-6)) + "..." + data.substr((data.length - (shownCharacters-6)), data.length);
+              button.innerHTML = data.substr(1,(shownCharacters-6)) + "..." + data.substr((data.length - (shownCharacters-6)), data.length);
               button.innerHTML += dateAppend;
             }
             else{
@@ -179,32 +182,28 @@
             }
           }
           button.value = data;//set value
-          localStorage.setItem("button"+button.id, data);//store value in memory
+          setButtonDataInLocalStorage(button.id, data)
         }
-        /////////////function definitions up here/////////////
-        //This codeblock included to generate the first button programatically
-        var check = localStorage.getItem("button0");
-        if( check == null ){
-          makeButton('Left(copy)|Right(paste)|Mid(add date)');
-        }else{
-          var index = 0;
-          var loopFlag = true;
-          while(loopFlag){
-            console.log("in loopflag: "+index);
-            var value = localStorage.getItem("button"+index);
-            if(value !== null){
-              restoreButton(index);
-              index += 1;
-            }
-            else{
-              loopFlag = false;
-            }
+        function getButtonDataFromLocalStorage(){
+          var buttonData = JSON.parse(localStorage.getItem('buttonData'));
+          if (buttonData == null){
+            buttonData = [];
+            buttonData.push('Left(copy)|Right(paste)|Mid(add date)');
+            localStorage.setItem("buttonData", JSON.stringify(buttonData));
+            buttonData = JSON.parse(localStorage.getItem('buttonData'));
           }
-
-          upDateButtons();
+          return buttonData; 
+        }
+        function setButtonDataInLocalStorage(index, value){
+          var buttonData = getButtonDataFromLocalStorage();
+          buttonData[index] = value;
+          localStorage.setItem("buttonData", JSON.stringify(buttonData));
         }
 
-        //Including this solved an issue with first buttons class being undefined
+        /////////////function definitions up here/////////////
+        restoreButtons();
+        upDateButtons();
+
 
         //this code block gets the clicked element
         document.addEventListener('click', function(e) {//left click listener
