@@ -96,7 +96,7 @@
         }
         async function paste(input) {//accepts html element and sets innerHTML to clipboard contents
           const text = await navigator.clipboard.readText();
-          setButtonData(input, text);
+          setButtonData(input, removeDateAppend(text));
         }
         async function copy(input) {//accepts html element and copies value to clipboard
           if (input.classList.contains('dateBuddy')){
@@ -182,7 +182,7 @@
             }
           }
           button.value = data;//set value
-          setButtonDataInLocalStorage(button.id, data)
+          setButtonDataInLocalStorage(button.id, data);
         }
         function getButtonDataFromLocalStorage(){
           var buttonData = JSON.parse(localStorage.getItem('buttonData'));
@@ -200,6 +200,14 @@
           localStorage.setItem("buttonData", JSON.stringify(buttonData));
         }
 
+        function removeDateAppend(input) {
+          let regex = /-[A-Za-z]?[A-Za-z]?\s\d\/\d\/\d\d\d\d/i;
+
+          input = String(input);
+          var returnVal = input.split(regex);
+          console.log("splitting off: "+returnVal[1]);
+          return returnVal[0];
+        }
         /////////////function definitions up here/////////////
         restoreButtons();
         upDateButtons();
