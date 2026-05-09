@@ -64,7 +64,7 @@
     </style>
     </head>
 
-    <body style="background-color:#F5F5F5;">
+    <body oncontextmenu="return false;" style="background-color:#F5F5F5;">
       <div class='new-window center', id='popOut'>
         <a onclick="newWindow();">
           Pop Out Window
@@ -107,14 +107,12 @@
           var btn = document.createElement('BUTTON');//make new button
           btn.classList.add('buddy');
           btn.classList.add('textBuddy');
-          btn.classList.add('js-noMenu');
           btn.id= getCount(btngrp);//set id to position of button//pull to higher scope
           setButtonData(btn, input);
           container.append(btn);
 
           var delBtn = document.createElement('BUTTON');//make new button
           delBtn.classList.add('delete');
-          delBtn.classList.add('js-noMenu');
           delBtn.id= getCount(btngrp);//set id to position of button
           delBtn.innerHTML = "X";
           container.append(delBtn);
@@ -325,11 +323,6 @@
         if (window.innerWidth < (screen.width/3) ){//on page load hide "popOut" div if window is <1/3 of the screen
           document.getElementById('popOut').style.display = 'none';
         }
-        // Source - https://stackoverflow.com/a/51958093
-        // Posted by toastrackengima, modified by community. See post 'Timeline' for change history
-        // Retrieved 2026-04-28, License - CC BY-SA 4.0
-        // "for preventing context menu popup when copying text"
-        [...document.querySelectorAll(".js-noMenu")].forEach( el => el.addEventListener('contextmenu', e => e.preventDefault()));
       </script>
     </body>
 </html>
