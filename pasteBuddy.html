@@ -9,16 +9,25 @@
         padding: 10px 24px; /* Some padding */
         cursor: pointer; /* Pointer/hand icon */
         width: 100%; /* Set a width if needed */
-        display: block; /* Make the buttons appear below each other */
       }
       .dateBuddy  {
-        background-color: #FF9001; /* Green background */
+        background-color: #FF9001; /* orange background */
         border: 1px solid #A04916; /* Green border */
         color: white; /* White text */
         padding: 10px 24px; /* Some padding */
         cursor: pointer; /* Pointer/hand icon */
         width: 100%; /* Set a width if needed */
-        display: block; /* Make the buttons appear below each other */
+      }
+      .delete{
+        background-color: #3476AC; 
+        border: 1px solid #164963; /* Green border */
+        color: white; /* White text */
+        padding: 10px 24px; /* Some padding */
+        cursor: pointer; /* Pointer/hand icon */
+        width: 5%; /* Set a width if needed */
+      }
+      .buddyContainer{
+          display: flex;
       }
 
       .buddy :not(:last-child) {
@@ -31,6 +40,9 @@
       }
       .dateBuddy:hover {
         background-color: #B76501;
+      }
+      .delete:hover {
+        background-color: #27577F;
       }
       .new-window{
 
@@ -80,13 +92,26 @@
         }
         async function makeButton(input) {//makes a new button
           var btngrp = document.getElementById('btn-group');//get reference to button group
+                  
+          var container = document.createElement('div');
+          container.classList.add('buddyContainer');
+
           var btn = document.createElement('BUTTON');//make new button
           btn.classList.add('buddy');
           btn.classList.add('textBuddy');
           btn.classList.add('js-noMenu');
-          btn.id= getCount(btngrp);//set id to position of button
+          btn.id= getCount(btngrp);//set id to position of button//pull to higher scope
           setButtonData(btn, input);
-          btngrp.append(btn);//append button to end of group
+          container.append(btn);
+
+          var delBtn = document.createElement('BUTTON');//make new button
+          delBtn.classList.add('delete');
+          delBtn.classList.add('js-noMenu');
+          delBtn.id= getCount(btngrp);//set id to position of button
+          delBtn.innerHTML = "X";
+          container.append(delBtn);
+ 
+          btngrp.append(container);//append button to end of group
         }
         async function restoreButtons() {
           var buttonData = getButtonDataFromLocalStorage();
@@ -115,6 +140,12 @@
           } catch (err) {
             console.error('Failed to copy: ', err);
           }
+        }
+        function deleteButton(input){
+          console.log("input: "+input);
+          deleteButtonDataInLocalStorageById(input.firstChild.id);
+          input.remove();
+          updateButtons();
         }
         async function newWindow(){//reopen page in a popup to allow full resizing
           //first clear current page
@@ -149,10 +180,12 @@
           */
         }
 
-        async function upDateButtons(){
+        async function updateButtons(){
           var buddyVar = document.getElementsByClassName('buddy');
-          for (i=0; i<buddyVar.length-1; i++){
-              setButtonData(buddyVar.item(i), buddyVar.item(i).value);
+          for (i=0; i<buddyVar.length; i++){
+              buddyVar.item(i).id = i;
+              buddyVar.item(i).nextSibling.id = i;
+              setButtonData(buddyVar.item(i), getButtonDataFromLocalStorageById(i));
           }
         }
         function getDateAppend(){
@@ -185,7 +218,7 @@
           button.value = data;//set value
           setButtonDataInLocalStorage(button.id, data);
         }
-        function getButtonDataFromLocalStorage(){
+        function getButtonDataFromLocalStorage(){//returns stored data or a placeholder if none exist
           var buttonData = JSON.parse(localStorage.getItem('buttonData'));
           if (buttonData == null){
             buttonData = [];
@@ -195,12 +228,22 @@
           }
           return buttonData; 
         }
+        function getButtonDataFromLocalStorageById(id){//returns stored data at a given index
+          var buttonData = JSON.parse(localStorage.getItem('buttonData'));
+          return buttonData[id]; 
+        }
         function setButtonDataInLocalStorage(index, value){
           var buttonData = getButtonDataFromLocalStorage();
           buttonData[index] = value;
           localStorage.setItem("buttonData", JSON.stringify(buttonData));
         }
-
+        function deleteButtonDataInLocalStorageById(index){
+          console.log("in deltebuttondatainlocalstorage|index: "+index);
+          var buttonData = getButtonDataFromLocalStorage();
+          buttonData[index] = null;
+          buttonData = buttonData.filter((index) => index != null);//filters out the newly null value
+          localStorage.setItem("buttonData", JSON.stringify(buttonData));
+        }
         function removeDateAppend(input) {
           let regex = /\s-[A-Za-z]?[A-Za-z]?\s\d\/\d\/\d\d\d\d/i;
 
@@ -212,7 +255,7 @@
         /////////////function definitions up here/////////////
         
         restoreButtons();
-        upDateButtons();
+        updateButtons();
 
 
         //this code block gets the clicked element
@@ -221,8 +264,8 @@
             e = e || window.event;
             var target = e.target || e.srcElement;//get clicked element as object and store
             text = target.textContent || target.innerText;
-            upDateButtons(target);
-            if (target == '[object HTMLButtonElement]'){//if the element is a button do this
+            updateButtons(target);
+            if (target.classList.contains('buddy')){
               copy(target);
               //alert('left clicked button with "'+target.innerHTML+'" as innerHTML');
             }
@@ -243,7 +286,7 @@
                 target.classList.remove('dateBuddy');
               }
               console.log('middle clicked button id:'+target.id+"and class: "+target.classList);
-              upDateButtons(target);
+              updateButtons(target);
             }
           }
         }, false);
@@ -252,10 +295,17 @@
             e = e || window.event;
             var target = e.target || e.srcElement;//get clicked element as object and store
             if (target == '[object HTMLButtonElement]'){//if the element is a button do this
-              paste(target);
-              var btngrp = document.getElementById('btn-group');//get reference to button group
-              if (target.id == (getCount(btngrp) - 1) ){//if button rightclicked is the last button
-                makeButton('Left(copy)|Right(paste)|Mid(add date)');
+              if (target.classList.contains('buddy') ){
+                paste(target);
+                var btngrp = document.getElementById('btn-group');//get reference to button group
+                console.log("target.id >= (getCount(btngrp) : "+target.id +">="+ (getCount(btngrp)-1) );
+                if (target.id >= (getCount(btngrp) -1) ){//if button rightclicked is the last button
+                  makeButton('Left(copy)|Right(paste)|Mid(add date)');
+                }
+              }
+              else{
+                console.log("delete button "+target.id);
+                deleteButton(target.parentElement);                
               }
             }
           }
