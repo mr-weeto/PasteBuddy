@@ -42,6 +42,25 @@
         border-bottom: none; /* Prevent double borders */
       }
 
+      /*for ronding corners*/
+      /* First item */
+      .btn-group > .buddyContainer:first-child .buddy {
+          border-top-left-radius: 12px;
+      }
+      .btn-group > .buddyContainer:first-child .delete,
+      .btn-group > .buddyContainer:first-child .dateDelete{
+          border-top-right-radius: 12px;
+      }
+
+      /* Last item */
+      .btn-group > .buddyContainer:last-child .delete,
+      .btn-group > .buddyContainer:last-child .dateDelete {
+          border-bottom-right-radius: 12px;
+      }
+      .btn-group > .buddyContainer:last-child .buddy{
+          border-bottom-left-radius: 12px;
+      }
+
       /* Add a background color on hover */
       .buddy:hover {
         background-color: #27577F;
@@ -51,6 +70,9 @@
       }
       .delete:hover {
         background-color: #27577F;
+      }
+      .dateDelete:hover {
+        background-color: #B76501;
       }
       .new-window{
 
