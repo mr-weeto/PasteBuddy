@@ -100,7 +100,6 @@
         }
         async function makeButton(input) {//makes a new button
           var btngrp = document.getElementById('btn-group');//get reference to button group
-                  
           var container = document.createElement('div');
           container.classList.add('buddyContainer');
 
@@ -149,7 +148,9 @@
         }
         function deleteButton(input){
           console.log("input: "+input);
-          deleteButtonDataInLocalStorageById(input.firstChild.id);
+          var id = input.firstChild.id;
+          deleteButtonDataInLocalStorageById(id);
+          deleteDateMapById(id);
           input.remove();
           updateButtons();
         }
@@ -180,10 +181,24 @@
 
         async function updateButtons(){
           var buddyVar = document.getElementsByClassName('buddy');
+          var dateMap = getDateMap();
+          var buttonData = getButtonDataFromLocalStorage();
           for (i=0; i<buddyVar.length; i++){
               buddyVar.item(i).id = i;
               buddyVar.item(i).nextSibling.id = i;
-              setButtonData(buddyVar.item(i), getButtonDataFromLocalStorageById(i));
+              setButtonData(buddyVar.item(i), buttonData[i]);
+              console.log("datemap is "+dateMap[i]+" in update buttons");
+              if (dateMap[i]){//set class list based on dateMap
+                buddyVar.item(i).classList.add("dateBuddy");
+                buddyVar.item(i).classList.remove("textBuddy");
+                buddyVar.item(i).nextSibling.classList.add("dateDelete");
+                buddyVar.item(i).nextSibling.classList.remove("delete");
+              }else{
+                buddyVar.item(i).classList.remove("dateBuddy");
+                buddyVar.item(i).classList.add("textBuddy");
+                buddyVar.item(i).nextSibling.classList.remove("dateDelete");
+                buddyVar.item(i).nextSibling.classList.add("delete");
+              }
           }
         }
         function getDateAppend(){
@@ -194,7 +209,8 @@
         }
         async function setButtonData(button, data) {//takes reference to button, sets button value, innerHTML, and localstorage data
           var shownCharacters = (window.innerWidth / 20); //sizes shown text by window size
-          if (button.classList.contains('dateBuddy')){
+          if (getDateMapById(button.id)){
+            console.log("in setButtonData, is datebuddy");
             var dateAppend = getDateAppend();
             if (data.length > ((shownCharacters-6) * 2 + 11) ){//text compression
               button.innerHTML = data.substr(1,(shownCharacters-6)) + "..." + data.substr((data.length - (shownCharacters-6)), data.length);
@@ -214,7 +230,7 @@
             }
           }
           button.value = data;//set value
-          setButtonDataInLocalStorage(button.id, data);
+          setButtonDataInLocalStorage(button.id, removeDateAppend(data));
         }
         function getButtonDataFromLocalStorage(){//returns stored data or a placeholder if none exist
           var buttonData = JSON.parse(localStorage.getItem('buttonData'));
@@ -242,13 +258,40 @@
           buttonData = buttonData.filter((index) => index != null);//filters out the newly null value
           localStorage.setItem("buttonData", JSON.stringify(buttonData));
         }
+        function getDateMap(){
+          var dateMap = JSON.parse(localStorage.getItem('dateMap'));
+          if (dateMap == null){
+            var mapSize = getButtonDataFromLocalStorage().length;
+            dateMap = Array(mapSize).fill(false);
+            localStorage.setItem("dateMap", JSON.stringify(dateMap));
+            dateMap = JSON.parse(localStorage.getItem('dateMap'));
+          }
+          return dateMap; 
+        }
+        function getDateMapById(index){
+          var map = getDateMap(); 
+          return map[index];
+        }
+        function setDateMap(index){
+          var map = getDateMap(); 
+          map[index] = !map[index];
+          localStorage.setItem("dateMap", JSON.stringify(map)); 
+        }
+        function appendDateMap(){
+          var map = getDateMap(); 
+          map.push(false);
+          localStorage.setItem("dateMap", JSON.stringify(map)); 
+        }
+        function deleteDateMapById(index){
+          console.log("in delteDateMap|index: "+index);
+          var dateMap = getDateMap(); 
+          dateMap[index] = null;
+          dateMap = dateMap.filter((index) => index != null);//filters out the newly null value
+          localStorage.setItem("dateMap", JSON.stringify(dateMap));
+        }
         function removeDateAppend(input) {
-          let regex = /\s-[A-Za-z]?[A-Za-z]?\s\d\/\d\/\d\d\d\d/i;
-
-          input = String(input);
-          var returnVal = input.split(regex);
-          console.log("splitting off: "+returnVal[1]);
-          return returnVal[0];
+          let regex = /\s-[A-Za-z]{0,2}\s\d{1,2}\/\d{1,2}\/\d{4}$/i;
+          return String(input).replace(regex, '');
         }
         /////////////function definitions up here/////////////
         
@@ -262,12 +305,11 @@
             e = e || window.event;
             var target = e.target || e.srcElement;//get clicked element as object and store
             text = target.textContent || target.innerText;
-            updateButtons(target);
+            updateButtons();
             if (target.classList.contains('buddy')){
               copy(target);
               //alert('left clicked button with "'+target.innerHTML+'" as innerHTML');
             }
-
           }
         }, false);
         document.addEventListener('auxclick', function(e) {//middle click listener
@@ -275,16 +317,8 @@
             e = e || window.event;
             var target = e.target || e.srcElement;//get clicked element as object and store
             text = target.textContent || target.innerText;
-            if(target.classList.contains('textBuddy')){//toggle button class between a dated or non dated button
-              target.classList.remove('textBuddy');
-              target.classList.add('dateBuddy');
-              target.nextSibling.classList.remove('delete');
-              target.nextSibling.classList.add('dateDelete');
-            }else if(target.classList.contains('dateBuddy')){//toggle button class between a dated or non dated button
-              target.classList.add('textBuddy');
-              target.classList.remove('dateBuddy');
-              target.nextSibling.classList.add('delete');
-              target.nextSibling.classList.remove('dateDelete');
+            if(target.classList.contains('buddy')){//toggle button class between a dated or non dated button
+              setDateMap(target.id);
             }
             console.log('middle clicked button id:'+target.id+"and class: "+target.classList);
             updateButtons(target);
